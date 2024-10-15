@@ -2,41 +2,25 @@
 require_once '../../control/EncryptionController.php';
 require_once '../../util/configuracion.php';
 
-$encryptionController = new EncryptionController();
+$encryptionController = new EncryptionController($_SESSION['db']);
 $datos = darDatosSubmitted();
 
 // Obtener los datos enviados
-$claveTexto = $datos['key'] ?? null;  // Clave en texto
-$archivoEncriptado = $_FILES['file']['tmp_name'] ?? null;  // Archivo encriptado (opcional)
-$textoEncriptado = $datos['ciphertext'] ?? null;  // Texto encriptado (opcional)
+$claveTexto = $datos['key'];  // Clave en texto
+$fileId = $datos['fileId'] ?? null;  // ID del archivo encriptado (opcional)
 
 $resultado = null;
-$mensaje = null;
 
-// Si hay un archivo encriptado
-if ($archivoEncriptado && is_uploaded_file($archivoEncriptado)) {
-    // Mover el archivo a una ubicación fija en 'uploads'
-    $uploadDir = realpath(__DIR__ . '/../../uploads/') . '/';
-    $nombreArchivo = basename($_FILES['file']['name']);
-    $archivoDestino = $uploadDir . $nombreArchivo;
-
-    if (move_uploaded_file($archivoEncriptado, $archivoDestino)) {
-        // Ahora se puede usar el archivo movido para desencriptar
-        $resultado = $encryptionController->decryptFile($archivoDestino, $claveTexto);
-    } else {
-        $mensaje = "Error al mover el archivo subido.";
-    }
-}
-// Si se ingresó texto encriptado
-elseif ($textoEncriptado) {
-    $resultado = $encryptionController->decryptText($textoEncriptado, $claveTexto);
+// Si se proporcionó un ID de archivo encriptado
+if ($fileId) {
+    $resultado = $encryptionController->decryptFile($fileId, $claveTexto);
 }
 
 if (isset($resultado['error'])) {
     $mensaje = $resultado['error'];
 } else {
+    $archivoDesencriptado = $resultado['file'];
     $textoDesencriptado = $resultado['plaintext'] ?? null;
-    $archivoDesencriptado = $resultado['file'] ?? null;
 }
 ?>
 
@@ -53,18 +37,17 @@ if (isset($resultado['error'])) {
 <div class="container mt-5">
     <h1>Resultado de Desencriptación</h1>
     <?php if (isset($mensaje)): ?>
-        <p class="error-message text-danger"><?= $mensaje ?></p>
+        <p class="error-message"><?= $mensaje ?></p>
     <?php else: ?>
         <?php if ($archivoDesencriptado): ?>
-            <p>Archivo desencriptado: <a href="../uploads/<?= basename($archivoDesencriptado) ?>" download>Descargar</a></p>
+            <p>Archivo desencriptado: <a href="descargar.php?file=<?= $fileId ?>" download>Descargar</a></p>
         <?php elseif ($textoDesencriptado): ?>
             <p>Texto desencriptado:</p>
-            <textarea class="form-control" id="textoDesencriptado" rows="6" readonly><?= $textoDesencriptado ?></textarea>
+            <textarea class="form-control" id="textoDesencriptado" readonly><?= $textoDesencriptado ?></textarea>
             <button class="btn btn-primary mt-3" onclick="copiarTexto()">Copiar Texto</button>
         <?php endif; ?>
     <?php endif; ?>
     <a href="../desencriptar.php" class="btn btn-secondary mt-3">Volver</a>
-    <a href="../../index.php" class="btn btn-secondary mt-3">Volver al Menú</a>
 </div>
 
 <script>

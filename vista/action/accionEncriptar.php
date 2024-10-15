@@ -2,17 +2,19 @@
 require_once '../../control/EncryptionController.php';
 require_once '../../util/configuracion.php';
 
-$encryptionController = new EncryptionController();
+// Pasar la conexión PDO al controlador
+$encryptionController = new EncryptionController($db);
 $datos = darDatosSubmitted();
 
+// Procesar encriptación
 $resultado = $encryptionController->encryptFileOrText($_FILES + $datos);
 
 if (isset($resultado['error'])) {
     $mensaje = $resultado['error'];
 } else {
-    $archivoEncriptado = $resultado['file'] ?? null;
-    $textoEncriptado = $resultado['ciphertext'] ?? null;
-    $rutaClave = $resultado['key']; // Ruta absoluta de la clave
+    // Obtener el ID del archivo recién encriptado desde la base de datos
+    $fileId = $db->lastInsertId();  // Obtener el ID del archivo recién encriptado
+    $Clave = $resultado['key'];  // Clave de encriptación
 }
 ?>
 
@@ -31,24 +33,15 @@ if (isset($resultado['error'])) {
     <?php if (isset($mensaje)): ?>
         <p class="error-message"><?= $mensaje ?></p>
     <?php else: ?>
-        <?php if ($archivoEncriptado): ?>
-            <!-- Aquí pasamos el nombre del archivo -->
-            <form action="../descargar.php" method="POST">
-                <input type="hidden" name="file" value="<?= basename($archivoEncriptado) ?>">
-                <button type="submit" class="btn btn-primary">Descargar Archivo Encriptado</button>
-            </form>
-        <?php elseif ($textoEncriptado): ?>
-            <p>Texto encriptado: <textarea class="form-control" readonly><?= $textoEncriptado ?></textarea></p>
-        <?php endif; ?>
+        <p>Archivo encriptado ID: <?= $fileId ?></p>
         <p>Clave de encriptación:</p>
-        <textarea class="form-control" id="key" readonly><?= file_get_contents($rutaClave) ?></textarea>
+        <textarea class="form-control" id="key" readonly><?= $Clave ?></textarea>
         <button class="btn btn-primary mt-3" onclick="copiarClave()">Copiar Clave</button>
+        <a href="../descargar.php?file=<?= $fileId ?>" class="btn btn-primary mt-3">Descargar Archivo Encriptado</a>
     <?php endif; ?>
     <a href="../encriptar.php" class="btn btn-secondary mt-3">Volver</a>
-    <a href="../../index.php" class="btn btn-secondary mt-3">Volver al Menú</a>
 </div>
 
-<script src="../js/validaciones.js"></script>
 <script>
     function copiarClave() {
         var keyTextarea = document.getElementById('key');

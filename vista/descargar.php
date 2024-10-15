@@ -1,26 +1,31 @@
 <?php
-if (isset($_POST['file'])) {
-    $file = $_POST['file'];
-    
-    // Ruta completa del archivo dentro de la carpeta uploads
-    $filePath = realpath(__DIR__ . '/../uploads/' . basename($file));
+require_once '../util/configuracion.php';
 
-    // Verifica si el archivo existe
-    if (file_exists($filePath)) {
-        // Forzar la descarga del archivo
+if (isset($_GET['file'])) {
+    $fileId = intval($_GET['file']);
+
+    // Obtener el archivo de la base de datos
+    $stmt = $db->prepare("SELECT file_name, encrypted_file FROM encrypted_files WHERE id = :id");
+    $stmt->bindParam(':id', $fileId);
+    $stmt->execute();
+    $fileData = $stmt->fetch(PDO::FETCH_ASSOC);
+
+    if ($fileData) {
+        // Preparar encabezados HTTP para la descarga del archivo
         header('Content-Description: File Transfer');
         header('Content-Type: application/octet-stream');
-        header('Content-Disposition: attachment; filename="' . basename($filePath) . '"');
+        header('Content-Disposition: attachment; filename="' . basename($fileData['file_name']) . '.encrypted"');
         header('Expires: 0');
         header('Cache-Control: must-revalidate');
         header('Pragma: public');
-        header('Content-Length: ' . filesize($filePath));
-        readfile($filePath);
+        header('Content-Length: ' . strlen($fileData['encrypted_file']));
+
+        // Enviar el archivo encriptado al usuario para su descarga
+        echo $fileData['encrypted_file'];
         exit;
     } else {
-        // Mensaje si el archivo no se encuentra
-        echo "El archivo no se encuentra disponible.";
+        echo "Error: Archivo no encontrado." . htmlspecialchars($fileId);
     }
 } else {
-    echo "No se especificó ningún archivo.";
+    echo "Error: Parámetro 'file' no especificado.";
 }

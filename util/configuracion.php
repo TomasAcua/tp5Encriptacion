@@ -1,43 +1,36 @@
 <?php
-// configuracion.php
-header('Content-Type: text/html; charset=utf-8');
-header("Cache-Control: no-cache, must-revalidate");
+// Archivo de configuración global del proyecto
 
-$PROYECTO = 'PHPMYSQL';  // Nombre del proyecto
+session_start();
 
-// Directorio del proyecto
+$PROYECTO = 'tp5Encriptacion';
 $ROOT = $_SERVER['DOCUMENT_ROOT'] . "/$PROYECTO/";
 
-// Cargar autoload de Composer
-require_once __DIR__ . '/../vendor/autoload.php';
-
-
-// Ruta de claves y archivos
-$UPLOADS_DIR = $ROOT . 'uploads/';
-$KEYS_DIR = $ROOT . 'keys/';
-
-// Verificar si existen los directorios
-if (!file_exists($UPLOADS_DIR)) {
-    mkdir($UPLOADS_DIR, 0777, true);
+// Conexión a la base de datos (no la guardamos en la sesión)
+try {
+    $db = new PDO('mysql:host=localhost;dbname=encryptionDB;charset=utf8', 'root', '');
+    $db->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
+} catch (PDOException $e) {
+    die("Error en la conexión: " . $e->getMessage());
 }
+// Autoload para las clases y dependencias instaladas por Composer
+require_once $ROOT . 'vendor/autoload.php';
+// Autoload para clases
+spl_autoload_register(function ($class_name) use ($ROOT) {
+    $directories = [
+        $ROOT . 'modelo/',
+        $ROOT . 'control/'
+    ];
 
-if (!file_exists($KEYS_DIR)) {
-    mkdir($KEYS_DIR, 0777, true);
-}
+    foreach ($directories as $directory) {
+        if (file_exists($directory . $class_name . '.php')) {
+            require_once $directory . $class_name . '.php';
+            return;
+        }
+    }
+});
 
 // Función para encapsular el envío por POST o GET
 function darDatosSubmitted() {
     return $_SERVER["REQUEST_METHOD"] === "POST" ? $_POST : $_GET;
 }
-
-// Cargar claves y archivos de encriptación
-function cargarArchivo($campo) {
-    if (isset($_FILES[$campo]) && $_FILES[$campo]['size'] > 0) {
-        $nombreArchivo = basename($_FILES[$campo]['name']);
-        $ruta = $GLOBALS['UPLOADS_DIR'] . $nombreArchivo;
-        move_uploaded_file($_FILES[$campo]['tmp_name'], $ruta);
-        return $ruta;
-    }
-    return false;
-}
-
