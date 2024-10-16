@@ -9,7 +9,6 @@
 </head>
 <body>
 <?php include '../vista/estructura/header.php'; ?>
-<div id="navbar"></div>
     <div class="container mt-5">
         <h1>Encriptar Archivo o Texto</h1>
         <form action="action/accionEncriptar.php" method="post" enctype="multipart/form-data">
@@ -25,7 +24,7 @@
         </form>
         <a href="../index.php" class="btn btn-secondary mt-3 btn-animate">Volver al Menú</a>
     </div>
-    <?php include '../vista/estructura/footer.php'; ?>
+<?php include '../vista/estructura/footer.php'; ?>
     <script src="../js/validaciones.js"></script>
 </body>
 </html>

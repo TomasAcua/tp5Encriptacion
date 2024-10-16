@@ -2,25 +2,21 @@
 require_once '../../control/EncryptionController.php';
 require_once '../../util/configuracion.php';
 
-$encryptionController = new EncryptionController($_SESSION['db']);
+$encryptionController = new EncryptionController($db);
 $datos = darDatosSubmitted();
 
 // Obtener los datos enviados
 $claveTexto = $datos['key'];  // Clave en texto
-$fileId = $datos['fileId'] ?? null;  // ID del archivo encriptado (opcional)
+$fileId = intval($datos['fileId']);  // ID del archivo encriptado
 
-$resultado = null;
+$resultado = $encryptionController->decryptFile($fileId, $claveTexto);
 
-// Si se proporcionó un ID de archivo encriptado
-if ($fileId) {
-    $resultado = $encryptionController->decryptFile($fileId, $claveTexto);
-}
-
+// Si ocurre un error, mostrar el mensaje
 if (isset($resultado['error'])) {
     $mensaje = $resultado['error'];
 } else {
-    $archivoDesencriptado = $resultado['file'];
-    $textoDesencriptado = $resultado['plaintext'] ?? null;
+    // El archivo será descargado directamente desde el modelo
+    exit;
 }
 ?>
 
@@ -39,13 +35,9 @@ if (isset($resultado['error'])) {
     <?php if (isset($mensaje)): ?>
         <p class="error-message"><?= $mensaje ?></p>
     <?php else: ?>
-        <?php if ($archivoDesencriptado): ?>
-            <p>Archivo desencriptado: <a href="descargar.php?file=<?= $fileId ?>" download>Descargar</a></p>
-        <?php elseif ($textoDesencriptado): ?>
-            <p>Texto desencriptado:</p>
-            <textarea class="form-control" id="textoDesencriptado" readonly><?= $textoDesencriptado ?></textarea>
-            <button class="btn btn-primary mt-3" onclick="copiarTexto()">Copiar Texto</button>
-        <?php endif; ?>
+        <p>Archivo desencriptado:</p>
+        <textarea class="form-control" id="textoDesencriptado" readonly><?= $textoDesencriptado ?></textarea>
+        <button class="btn btn-primary mt-3" onclick="copiarTexto()">Copiar Texto</button>
     <?php endif; ?>
     <a href="../desencriptar.php" class="btn btn-secondary mt-3">Volver</a>
 </div>

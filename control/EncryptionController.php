@@ -14,12 +14,14 @@ class EncryptionController {
      */
     public function encryptFileOrText($data) {
         if (isset($data['file']) && $data['file']['size'] > 0) {
-            // Encriptar archivo
+            // Obtener la ruta temporal y el nombre original del archivo
             $filePath = $data['file']['tmp_name'];
-            return $this->model->encryptFile($filePath);
+            $originalFileName = $data['file']['name'];  // Aquí obtenemos el nombre original del archivo
+
+            // Encriptar archivo pasando la ruta temporal y el nombre original
+            return $this->model->encryptFileAndSaveToDb($filePath, $originalFileName);
         } elseif (!empty($data['text'])) {
-            // Encriptar texto (no cubierto en este ejemplo)
-            return ['error' => 'Falta implementar la encriptación de texto.'];
+            return $this->model->encryptText($data['text']);
         }
         return ['error' => 'Por favor, sube un archivo o introduce un texto.'];
     }
@@ -34,4 +36,3 @@ class EncryptionController {
         return $this->model->decryptFileFromDb($fileId, $keyText);
     }
 }
-?>

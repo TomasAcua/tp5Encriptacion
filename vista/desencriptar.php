@@ -10,25 +10,20 @@
 <body>
 <?php include '../vista/estructura/header.php'; ?>
     <div class="container mt-5">
-        <h1>Desencriptar Archivo o Texto</h1>
-        <form action="action/accionDesencriptar.php" method="POST" enctype="multipart/form-data">
+        <h1>Desencriptar Archivo</h1>
+        <form action="action/accionDesencriptar.php" method="POST">
+            <div class="mb-3">
+                <label for="fileId" class="form-label">ID del Archivo Encriptado</label>
+                <input type="text" class="form-control" id="fileId" name="fileId" required>
+            </div>
             <div class="mb-3">
                 <label for="key" class="form-label">Clave de Desencriptación (Texto)</label>
                 <textarea class="form-control" id="key" name="key" rows="3" required></textarea>
             </div>
-            <div class="mb-3">
-                <label for="file" class="form-label">Archivo Encriptado (opcional)</label>
-                <input type="file" class="form-control" id="file" name="file">
-            </div>
-            <div class="mb-3">
-                <label for="ciphertext" class="form-label">Texto Encriptado (opcional)</label>
-                <textarea class="form-control" id="ciphertext" name="ciphertext" rows="5"></textarea>
-            </div>
-            <button type="submit" class="btn btn-primary btn-animate">Desencriptar</button>
+            <button type="submit" class="btn btn-primary btn-animate">Desencriptar y Descargar</button>
         </form>
-        <a href="../index.php" class="btn btn-secondary mt-3 btn-animate">Volver al Menú</a>
+        <a href="../index.php" class="btn btn-secondary mt-3">Volver al Menú</a>
     </div>
     <?php include '../vista/estructura/footer.php'; ?>
-    <script src="../js/validaciones.js"></script>
 </body>
 </html>
