@@ -1,51 +1,79 @@
-# Proyecto de Encriptación y Desencriptación con PHP
-Este proyecto implementa un sistema para encriptar y desencriptar archivos y textos utilizando la librería Defuse PHP Encryption. El proyecto sigue el patrón Modelo-Vista-Controlador (MVC) para mantener una estructura organizada y limpia del código.
+# Sistema de Encriptación y Desencriptación de Archivos
+## Descripción General del Proyecto
+Este proyecto implementa un sistema de encriptación y desencriptación de archivos siguiendo la arquitectura MVC (Modelo-Vista-Controlador). El objetivo es encriptar y desencriptar archivos de manera segura, utilizando una base de datos para almacenar y recuperar archivos encriptados. El proyecto incluye funcionalidades tanto para encriptar como para desencriptar archivos, además de la posibilidad de encriptar texto.
 
-## Características
-Encriptación de archivos y texto utilizando claves seguras generadas al azar.
-Desencriptación de archivos y texto encriptados mediante claves.
-Uso de Bootstrap para darle estilo a las páginas web.
-Descarga de archivos encriptados y desencriptados.
-Estructura organizada utilizando MVC.
-Validación de formularios con JavaScript.
+### Tecnologías clave utilizadas:
 
-## Requisitos
-PHP 7.4 o superior
+PHP para el procesamiento del lado del servidor.
+Defuse PHP Encryption Library para encriptación y desencriptación seguras.
+PDO para la interacción con la base de datos.
+Bootstrap para el diseño visual.
+Arquitectura MVC para mantener el código modular y con una clara separación de responsabilidades.
+## Funcionalidades Principales
+### Encriptación de Archivos:
 
-Composer
+Los usuarios pueden subir archivos, los cuales son encriptados usando una clave generada aleatoriamente.
+El archivo encriptado se guarda en una base de datos MySQL como un BLOB.
+El sistema almacena el nombre original del archivo y la clave de encriptación.
+### Desencriptación de Archivos:
 
-XAMPP (u otro servidor local)
+Los usuarios pueden solicitar un archivo por su ID y proporcionar la clave de encriptación.
+El sistema desencripta el archivo y lo descarga con su nombre original.
+### Encriptación de Texto:
 
-Librería Defuse PHP Encryption instalada a través de Composer
+Los usuarios pueden ingresar texto, el cual se encripta y devuelve junto con la clave para su posterior desencriptación.
+## Estructura del Proyecto
+modelo/: Contiene el archivo EncryptionModel.php, que gestiona toda la lógica de encriptación, desencriptación y operaciones con la base de datos. 
 
-## Instalación
-1. Clonar el repositorio
-git clone https://github.com/tu-usuario/tp5Encriptacion.git
+control/: Contiene el archivo EncryptionController.php, responsable de procesar las solicitudes y pasar los datos entre la vista y el modelo.
 
-3. Instalar dependencias con Composer
-Ejecuta el siguiente comando en el directorio raíz del proyecto para instalar las dependencias:
-composer install
+vista/: Contiene las vistas, que incluyen los formularios para subir archivos y texto, y acciones como accionEncriptar.php y accionDesencriptar.php.
 
-4. Configurar el archivo .env
-Crea un archivo .env en la raíz del proyecto con la configuración de tu base de datos y otros parámetros. Ejemplo:
+uploads/: Directorio donde se almacenan temporalmente los archivos durante el proceso de encriptación.
 
-DB_HOST=localhost
+keys/: Almacena las claves generadas para la encriptación, aunque no son directamente accesibles por razones de seguridad.
 
-DB_NAME=tu_basededatos
+## Dependencias
+Defuse PHP Encryption Library: Asegúrate de haber instalado la biblioteca Defuse mediante Composer:
 
-DB_USER=root
+composer require defuse/php-encryption
 
-DB_PASS=
-
-DB_ENGINE=mysql
-
-DB_PORT=3306
+Bootstrap: El proyecto utiliza Bootstrap para el diseño de la interfaz de usuario. Asegúrate de que Bootstrap esté vinculado en tus vistas para una correcta presentación del UI.
 
 
-5. Configurar permisos de carpetas
-Asegúrate de que la carpeta uploads tenga permisos de escritura, ya que es donde se guardarán los archivos encriptados y desencriptados.
+## Configuración de la Base de Datos
+Crea una base de datos MySQL con la siguiente estructura:
 
- ### Dependencias
-Este proyecto utiliza la librería Defuse PHP Encryption para la encriptación y desencriptación de archivos y textos.
+CREATE TABLE encrypted_files (
 
-Defuse PHP Encryption
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    file_name VARCHAR(255),
+    encrypted_file LONGBLOB,
+    key_text TEXT,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
+Asegúrate de que la conexión a la base de datos esté correctamente configurada en tu archivo EncryptionModel.php.
+
+## Cómo Usar el Sistema
+### Encriptar Archivos:
+
+Sube un archivo a través del formulario proporcionado.
+El sistema generará una versión encriptada y la guardará en la base de datos junto con su clave.
+### Desencriptar Archivos:
+
+Ingresa el ID del archivo y proporciona la clave.
+El sistema recuperará el archivo encriptado de la base de datos, lo desencriptará y lo descargará con su nombre original.
+### Encriptar Texto:
+
+Ingresa un texto para encriptar.
+El sistema devolverá el texto encriptado junto con una clave para su desencriptación.
+## Instrucciones de Uso
+Clona el repositorio en tu entorno local.
+
+Asegúrate de que la base de datos esté configurada y conectada correctamente al proyecto.
+
+Sirve el proyecto utilizando un servidor local como XAMPP o LAMP.
+
+Usa los formularios proporcionados para probar la encriptación y desencriptación de archivos y textos.
+
